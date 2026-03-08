@@ -1,31 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{
-background:black;
-color:white;
-text-align:center;
-font-family:sans-serif;
-}
-
-button{
-width:200px;
-height:50px;
-margin:10px;
-font-size:20px;
-}
-</style>
-</head>
-
-<body>
-
-<h1>H5GG MENU</h1>
-
-<button onclick="alert('ON')">ON</button>
-
-<button onclick="alert('OFF')">OFF</button>
-
-</body>
-</html>
+print("スクリプト起動")
+game.StarterGui:SetCore("SendNotification",{
+Title="Script";
+Text="読み込み成功";
+Duration=5;
+})
