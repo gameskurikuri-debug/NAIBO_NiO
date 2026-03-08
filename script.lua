@@ -4,10 +4,10 @@ local UIS = game:GetService("UserInputService")
 
 -- GUI
 local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "NAIBO_GUI"
+gui.Name = "NAIBO_HUB"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,200,0,220)
+frame.Size = UDim2.new(0,220,0,260)
 frame.Position = UDim2.new(0,20,0,200)
 frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
 frame.Active = true
@@ -21,15 +21,14 @@ title.BackgroundColor3 = Color3.fromRGB(40,40,40)
 
 -- インフィニティジャンプ
 local infJump = false
+local btn1 = Instance.new("TextButton", frame)
+btn1.Size = UDim2.new(1,-20,0,30)
+btn1.Position = UDim2.new(0,10,0,40)
+btn1.Text = "Infinity Jump OFF"
 
-local jumpBtn = Instance.new("TextButton", frame)
-jumpBtn.Size = UDim2.new(1,-20,0,30)
-jumpBtn.Position = UDim2.new(0,10,0,40)
-jumpBtn.Text = "Infinity Jump : OFF"
-
-jumpBtn.MouseButton1Click:Connect(function()
+btn1.MouseButton1Click:Connect(function()
     infJump = not infJump
-    jumpBtn.Text = "Infinity Jump : "..(infJump and "ON" or "OFF")
+    btn1.Text = "Infinity Jump "..(infJump and "ON" or "OFF")
 end)
 
 UIS.JumpRequest:Connect(function()
@@ -39,26 +38,25 @@ UIS.JumpRequest:Connect(function()
 end)
 
 -- スピード
-local speedBtn = Instance.new("TextButton", frame)
-speedBtn.Size = UDim2.new(1,-20,0,30)
-speedBtn.Position = UDim2.new(0,10,0,80)
-speedBtn.Text = "Speed x2"
+local btn2 = Instance.new("TextButton", frame)
+btn2.Size = UDim2.new(1,-20,0,30)
+btn2.Position = UDim2.new(0,10,0,80)
+btn2.Text = "Speed x2"
 
-speedBtn.MouseButton1Click:Connect(function()
-    char:FindFirstChildOfClass("Humanoid").WalkSpeed = 32
+btn2.MouseButton1Click:Connect(function()
+    char:FindFirstChildOfClass("Humanoid").WalkSpeed = 40
 end)
 
 -- フライ
 local fly = false
+local btn3 = Instance.new("TextButton", frame)
+btn3.Size = UDim2.new(1,-20,0,30)
+btn3.Position = UDim2.new(0,10,0,120)
+btn3.Text = "Fly OFF"
 
-local flyBtn = Instance.new("TextButton", frame)
-flyBtn.Size = UDim2.new(1,-20,0,30)
-flyBtn.Position = UDim2.new(0,10,0,120)
-flyBtn.Text = "Fly : OFF"
-
-flyBtn.MouseButton1Click:Connect(function()
+btn3.MouseButton1Click:Connect(function()
     fly = not fly
-    flyBtn.Text = "Fly : "..(fly and "ON" or "OFF")
+    btn3.Text = "Fly "..(fly and "ON" or "OFF")
 
     if fly then
         local bv = Instance.new("BodyVelocity")
@@ -72,11 +70,43 @@ flyBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- GUI閉じる
+-- ESP
+local espOn = false
+local btn4 = Instance.new("TextButton", frame)
+btn4.Size = UDim2.new(1,-20,0,30)
+btn4.Position = UDim2.new(0,10,0,160)
+btn4.Text = "ESP OFF"
+
+btn4.MouseButton1Click:Connect(function()
+    espOn = not espOn
+    btn4.Text = "ESP "..(espOn and "ON" or "OFF")
+
+    for _,v in pairs(game.Players:GetPlayers()) do
+        if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+            if espOn then
+                local bill = Instance.new("BillboardGui", v.Character.Head)
+                bill.Size = UDim2.new(0,100,0,40)
+                bill.AlwaysOnTop = true
+
+                local txt = Instance.new("TextLabel", bill)
+                txt.Size = UDim2.new(1,0,1,0)
+                txt.Text = v.Name
+                txt.TextColor3 = Color3.new(1,0,0)
+                txt.BackgroundTransparency = 1
+            else
+                if v.Character.Head:FindFirstChild("BillboardGui") then
+                    v.Character.Head:FindFirstChild("BillboardGui"):Destroy()
+                end
+            end
+        end
+    end
+end)
+
+-- 閉じる
 local close = Instance.new("TextButton", frame)
 close.Size = UDim2.new(1,-20,0,30)
-close.Position = UDim2.new(0,10,0,160)
-close.Text = "Close GUI"
+close.Position = UDim2.new(0,10,0,200)
+close.Text = "Close"
 
 close.MouseButton1Click:Connect(function()
     gui:Destroy()
