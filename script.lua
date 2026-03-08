@@ -1,15 +1,17 @@
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
+local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
 
 -- GUI
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "NAIBO_HUB"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,220,0,260)
+frame.Size = UDim2.new(0,230,0,300)
 frame.Position = UDim2.new(0,20,0,200)
-frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 frame.Active = true
 frame.Draggable = true
 
@@ -17,97 +19,89 @@ local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1,0,0,30)
 title.Text = "NAIBO HUB"
 title.TextColor3 = Color3.new(1,1,1)
-title.BackgroundColor3 = Color3.fromRGB(40,40,40)
+title.BackgroundColor3 = Color3.fromRGB(45,45,45)
+
+local y = 40
+
+local function makeButton(text,callback)
+    local b = Instance.new("TextButton",frame)
+    b.Size = UDim2.new(1,-20,0,30)
+    b.Position = UDim2.new(0,10,0,y)
+    b.Text = text
+    y = y + 40
+    b.MouseButton1Click:Connect(callback)
+end
 
 -- インフィニティジャンプ
-local infJump = false
-local btn1 = Instance.new("TextButton", frame)
-btn1.Size = UDim2.new(1,-20,0,30)
-btn1.Position = UDim2.new(0,10,0,40)
-btn1.Text = "Infinity Jump OFF"
-
-btn1.MouseButton1Click:Connect(function()
+local infJump=false
+makeButton("Infinity Jump OFF",function(btn)
     infJump = not infJump
-    btn1.Text = "Infinity Jump "..(infJump and "ON" or "OFF")
 end)
 
 UIS.JumpRequest:Connect(function()
     if infJump then
-        char:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
 -- スピード
-local btn2 = Instance.new("TextButton", frame)
-btn2.Size = UDim2.new(1,-20,0,30)
-btn2.Position = UDim2.new(0,10,0,80)
-btn2.Text = "Speed x2"
-
-btn2.MouseButton1Click:Connect(function()
-    char:FindFirstChildOfClass("Humanoid").WalkSpeed = 40
+makeButton("Speed x2",function()
+    humanoid.WalkSpeed = 40
 end)
 
 -- フライ
-local fly = false
-local btn3 = Instance.new("TextButton", frame)
-btn3.Size = UDim2.new(1,-20,0,30)
-btn3.Position = UDim2.new(0,10,0,120)
-btn3.Text = "Fly OFF"
-
-btn3.MouseButton1Click:Connect(function()
-    fly = not fly
-    btn3.Text = "Fly "..(fly and "ON" or "OFF")
-
-    if fly then
+local flying=false
+makeButton("Fly ON/OFF",function()
+    flying = not flying
+    if flying then
         local bv = Instance.new("BodyVelocity")
-        bv.MaxForce = Vector3.new(9e9,9e9,9e9)
-        bv.Velocity = Vector3.new(0,50,0)
-        bv.Parent = char.HumanoidRootPart
+        bv.Name="FlyForce"
+        bv.MaxForce=Vector3.new(9e9,9e9,9e9)
+        bv.Velocity=Vector3.new(0,50,0)
+        bv.Parent=char.HumanoidRootPart
     else
-        if char.HumanoidRootPart:FindFirstChildOfClass("BodyVelocity") then
-            char.HumanoidRootPart:FindFirstChildOfClass("BodyVelocity"):Destroy()
+        if char.HumanoidRootPart:FindFirstChild("FlyForce") then
+            char.HumanoidRootPart.FlyForce:Destroy()
         end
     end
 end)
 
 -- ESP
-local espOn = false
-local btn4 = Instance.new("TextButton", frame)
-btn4.Size = UDim2.new(1,-20,0,30)
-btn4.Position = UDim2.new(0,10,0,160)
-btn4.Text = "ESP OFF"
+local esp=false
+makeButton("ESP ON/OFF",function()
+    esp = not esp
+    for _,v in pairs(Players:GetPlayers()) do
+        if v~=player and v.Character and v.Character:FindFirstChild("Head") then
+            if esp then
+                local bill=Instance.new("BillboardGui",v.Character.Head)
+                bill.Size=UDim2.new(0,100,0,40)
+                bill.AlwaysOnTop=true
+                bill.Name="ESP"
 
-btn4.MouseButton1Click:Connect(function()
-    espOn = not espOn
-    btn4.Text = "ESP "..(espOn and "ON" or "OFF")
-
-    for _,v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
-            if espOn then
-                local bill = Instance.new("BillboardGui", v.Character.Head)
-                bill.Size = UDim2.new(0,100,0,40)
-                bill.AlwaysOnTop = true
-
-                local txt = Instance.new("TextLabel", bill)
-                txt.Size = UDim2.new(1,0,1,0)
-                txt.Text = v.Name
-                txt.TextColor3 = Color3.new(1,0,0)
-                txt.BackgroundTransparency = 1
+                local txt=Instance.new("TextLabel",bill)
+                txt.Size=UDim2.new(1,0,1,0)
+                txt.Text=v.Name
+                txt.BackgroundTransparency=1
+                txt.TextColor3=Color3.new(1,0,0)
             else
-                if v.Character.Head:FindFirstChild("BillboardGui") then
-                    v.Character.Head:FindFirstChild("BillboardGui"):Destroy()
+                if v.Character.Head:FindFirstChild("ESP") then
+                    v.Character.Head.ESP:Destroy()
                 end
             end
         end
     end
 end)
 
--- 閉じる
-local close = Instance.new("TextButton", frame)
-close.Size = UDim2.new(1,-20,0,30)
-close.Position = UDim2.new(0,10,0,200)
-close.Text = "Close"
+-- テレポート（ランダムプレイヤー）
+makeButton("Teleport to Player",function()
+    local list=Players:GetPlayers()
+    local target=list[math.random(1,#list)]
+    if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        char.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+    end
+end)
 
-close.MouseButton1Click:Connect(function()
+-- Close
+makeButton("Close GUI",function()
     gui:Destroy()
 end)
